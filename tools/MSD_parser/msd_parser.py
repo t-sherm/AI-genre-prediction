@@ -4,6 +4,11 @@ This script will extract the desired features from the MSD data
 and output them into a csv file.
 Ensure that the following features are extracted so that the data
 can be fed into the mb_label_creator.py
+
+Notes: 
+1) Make sure that you run this script in the AI-genre-prediction directory.
+2) Make sure that you have a local copy of the MillionSongSubset and put it in
+   a folder called: AI-genre-prediction/data.
 """
 
 # usual imports
@@ -14,30 +19,34 @@ import glob
 import datetime
 import sqlite3
 import numpy as np
+
+
 # path to the Million Song Dataset data (uncompressed)
-# CHANGE IT TO YOUR LOCAL CONFIGURATION
-msd_subset_data_path=''
-# msd_subset_data_path=os.path.join(msd_subset_path,'data')
-# msd_subset_addf_path=os.path.join(msd_subset_path,'AdditionalFiles')
+msd_subset_data_path='data/MillionSongSubset'
 assert os.path.isdir(msd_subset_data_path),'wrong path' # sanity check
 # path to the Million Song Dataset code
-# CHANGE IT TO YOUR LOCAL CONFIGURATION
-msd_code_path='C:\\Users\\canla\\Desktop\\Grad_School\\AAI_695_Applied_ML\\Project\\AI-genre-prediction\\tools'
+msd_code_path='tools/MSD_python_code'
+import pdb; pdb.set_trace()
 assert os.path.isdir(msd_code_path),'wrong path' # sanity check
-# we add some paths to python so we can import MSD code
-# Ubuntu: you can change the environment variable PYTHONPATH
-# in your .bashrc file so you do not have to type these lines
-sys.path.append( os.path.join(msd_code_path,'MSD_python_code') )
+# add tools to Python path
+sys.path.append( msd_code_path)
 
 # imports specific to the MSD
 import hdf5_getters as GETTERS
 
-# the following function simply gives us a nice string for
-# a time lag in seconds
+
 def strtimedelta(starttime,stoptime):
+    """
+    The following function simply gives us a nice string for
+    a time lag in seconds.
+    INPUT
+        starttime
+        stoptime
+    OUTPUT
+        time difference (sec)
+    """
     return str(datetime.timedelta(seconds=stoptime-starttime))
 
-# we define this very useful function to iterate the files
 def apply_to_all_files(basedir,func=lambda x: x,ext='.h5'):
     """
     From a base directory, go through all subdirectories,
@@ -62,14 +71,6 @@ def apply_to_all_files(basedir,func=lambda x: x,ext='.h5'):
             func(f)       
     return cnt
 
-# we can now easily count the number of files in the dataset
-print('number of song files:',apply_to_all_files(msd_subset_data_path))
-
-# let's now get all artist names in a set(). One nice property:
-# if we enter many times the same artist, only one will be kept.
-all_artist_names = set()
-
-# we define the function to apply to all files
 def func_to_get_artist_name(filename):
     """
     This function does 3 simple things:
@@ -81,105 +82,24 @@ def func_to_get_artist_name(filename):
     artist_name = GETTERS.get_artist_name(h5)
     all_artist_names.add( artist_name )
     h5.close()
-    
-# let's apply the previous function to all files
-# we'll also measure how long it takes
-t1 = time.time()
-apply_to_all_files(msd_subset_data_path,func=func_to_get_artist_name)
-t2 = time.time()
-print('all artist names extracted in:',strtimedelta(t1,t2))
 
 
+if __name__ == '__main__':
+    # we can now easily count the number of files in the dataset
+    print('number of song files:',apply_to_all_files(msd_subset_data_path))
 
+    # let's now get all artist names in a set(). One nice property:
+    # if we enter many times the same artist, only one will be kept.
+    all_artist_names = set()
+        
+    # let's apply the previous function to all files
+    # we'll also measure how long it takes
+    t1 = time.time()
+    apply_to_all_files(msd_subset_data_path,func=func_to_get_artist_name)
+    t2 = time.time()
+    print('all artist names extracted in:',strtimedelta(t1,t2))
 
-# let's see some of the content of 'all_artist_names'
-print('found',len(all_artist_names),'unique artist names')
-for k in range(5):
-    print(list(all_artist_names)[k])
-
-# this is too long, and the work of listing artist names has already
-# been done. Let's redo the same task using an SQLite database.
-# We connect to the provided database: track_metadata.db
-conn = sqlite3.connect(os.path.join(msd_subset_addf_path,
-                                    'subset_track_metadata.db'))
-# we build the SQL query
-q = "SELECT DISTINCT artist_name FROM songs"
-# we query the database
-t1 = time.time()
-res = conn.execute(q)
-all_artist_names_sqlite = res.fetchall()
-t2 = time.time()
-print('all artist names extracted (SQLite) in:',strtimedelta(t1,t2))
-# we close the connection to the database
-conn.close()
-# let's see some of the content
-for k in range(5):
-    print(all_artist_names_sqlite[k][0])
-
-# now, let's find the artist that has the most songs in the dataset
-# what we want to work with is artist ID, not artist names. Some artists
-# have many names, usually because the song is "featuring someone else"
-conn = sqlite3.connect(os.path.join(msd_subset_addf_path,
-                                    'subset_track_metadata.db'))
-q = "SELECT DISTINCT artist_id FROM songs"
-res = conn.execute(q)
-all_artist_ids = map(lambda x: x[0], res.fetchall())
-conn.close()
-
-# The Echo Nest artist id look like:
-for k in range(4):
-    print(all_artist_ids[k])
-
-# let's count the songs from each of these artists.
-# We will do it first by iterating over the dataset.
-# we prepare a dictionary to count files
-files_per_artist = {}
-for aid in all_artist_ids:
-    files_per_artist[aid] = 0
-
-# we prepare the function to check artist id in each file
-def func_to_count_artist_id(filename):
-    """
-    This function does 3 simple things:
-    - open the song file
-    - get artist ID and put it
-    - close the file
-    """
-    h5 = GETTERS.open_h5_file_read(filename)
-    artist_id = GETTERS.get_artist_id(h5)
-    files_per_artist[artist_id] += 1
-    h5.close()
-
-# we apply this function to all files
-apply_to_all_files(msd_subset_data_path,func=func_to_count_artist_id)
-
-# the most popular artist (with the most songs) is:
-most_pop_aid = sorted(files_per_artist,
-                      key=files_per_artist.__getitem__,
-                      reverse=True)[0]
-print(most_pop_aid,'has',files_per_artist[most_pop_aid],'songs.')
-
-# of course, it is more fun to have the name(s) of this artist
-# let's get it using SQLite
-conn = sqlite3.connect(os.path.join(msd_subset_addf_path,
-                                    'subset_track_metadata.db'))
-q = "SELECT DISTINCT artist_name FROM songs"
-q += " WHERE artist_id='"+most_pop_aid+"'"
-res = conn.execute(q)
-pop_artist_names = map(lambda x: x[0], res.fetchall())
-conn.close()
-print('SQL query:',q)
-print('name(s) of the most popular artist:',pop_artist_names)
-
-# let's redo all this work in SQLite in a few seconds
-t1 = time.time()
-conn = sqlite3.connect(os.path.join(msd_subset_addf_path,
-                                    'subset_track_metadata.db'))
-q = "SELECT DISTINCT artist_id,artist_name,Count(track_id) FROM songs"
-q += " GROUP BY artist_id"
-res = conn.execute(q)
-pop_artists = res.fetchall()
-conn.close()
-t2 = time.time()
-print('found most popular artist in',strtimedelta(t1,t2))
-print(sorted(pop_artists,key=lambda x:x[2],reverse=True)[0])
+    # let's see some of the content of 'all_artist_names'
+    print('found',len(all_artist_names),'unique artist names')
+    for k in range(5):
+        print(list(all_artist_names)[k])
