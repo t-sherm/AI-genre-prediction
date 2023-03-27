@@ -38,6 +38,7 @@ import hdf5_getters as GETTERS
 desired_features = {'Artist Name': [],
                     'Release': [],
                     'Song Title': [],
+                    'Artist Location': [],
                     'Duration (sec)': [],
                     'Key': [],
                     'Key Confidence': [],
@@ -86,6 +87,7 @@ def func_to_get_desired_features(filename):
     artist_name = GETTERS.get_artist_name(h5)
     release = GETTERS.get_release(h5)
     title = GETTERS.get_title(h5)
+    artist_location = GETTERS.get_artist_location(h5)
     duration = GETTERS.get_duration(h5)
     key = GETTERS.get_key(h5)
     key_confidence = GETTERS.get_key_confidence(h5)
@@ -97,19 +99,21 @@ def func_to_get_desired_features(filename):
     time_signature_confidence = GETTERS.get_time_signature_confidence(h5)
     end_of_fade_in = GETTERS.get_end_of_fade_in(h5)
 
-    desired_features['Artist Name'].append(artist_name.decode('UTF-8'))
-    desired_features['Release'].append(release.decode('UTF-8'))
-    desired_features['Song Title'].append(title.decode('UTF-8'))
-    desired_features['Duration (sec)'].append(duration)
-    desired_features['Key'].append(key)
-    desired_features['Key Confidence'].append(key_confidence)
-    desired_features['Mode'].append(mode)
-    desired_features['Mode Confidence'].append(mode_confidence)
-    desired_features['Loudness'].append(loudness)
-    desired_features['Tempo'].append(tempo)
-    desired_features['Time Signature'].append(time_signature)
-    desired_features['Time Signature Confidence'].append(time_signature_confidence)
-    desired_features['End of Fade In'].append(end_of_fade_in)
+    if artist_name.isascii() and release.isascii():
+        desired_features['Artist Name'].append(artist_name.decode('UTF-8'))
+        desired_features['Release'].append(release.decode('UTF-8'))
+        desired_features['Song Title'].append(title.decode('UTF-8'))
+        desired_features['Artist Location'].append(artist_location.decode('UTF-8'))
+        desired_features['Duration (sec)'].append(duration)
+        desired_features['Key'].append(key)
+        desired_features['Key Confidence'].append(key_confidence)
+        desired_features['Mode'].append(mode)
+        desired_features['Mode Confidence'].append(mode_confidence)
+        desired_features['Loudness'].append(loudness)
+        desired_features['Tempo'].append(tempo)
+        desired_features['Time Signature'].append(time_signature)
+        desired_features['Time Signature Confidence'].append(time_signature_confidence)
+        desired_features['End of Fade In'].append(end_of_fade_in)
 
     h5.close()
 
