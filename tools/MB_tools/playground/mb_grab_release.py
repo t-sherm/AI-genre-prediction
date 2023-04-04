@@ -40,6 +40,7 @@ if __name__ == '__main__':
     # "offset", not shown here) and specifies the number of results to
     # return.
     result = musicbrainzngs.search_releases(release=release_name,
+                                            includes = ["tags"],
                                             limit=3)
     # On success, result is a dictionary with a single key:
     # "release-list", which is a list of dictionaries.
