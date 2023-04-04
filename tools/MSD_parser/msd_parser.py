@@ -48,7 +48,19 @@ desired_features = {'Artist Name': [],
                     'Tempo': [],
                     'Time Signature': [],
                     'Time Signature Confidence': [],
-                    'End of Fade In': []}
+                    'End of Fade In': [],
+                    'Interval 1 Count': [],
+                    'Interval 2 Count': [],
+                    'Interval 3 Count': [],
+                    'Interval 4 Count': [],
+                    'Interval 5 Count': [],
+                    'Interval 6 Count': [],
+                    'Interval 7 Count': [],
+                    'Interval 8 Count': [],
+                    'Interval 9 Count': [],
+                    'Interval 10 Count': [],
+                    'Interval 11 Count': [],
+                    'Interval 12 Count': []}
 
 
 def apply_to_all_files(basedir,func=lambda x: x,ext='.h5'):
@@ -98,6 +110,7 @@ def func_to_get_desired_features(filename):
     time_signature = GETTERS.get_time_signature(h5)
     time_signature_confidence = GETTERS.get_time_signature_confidence(h5)
     end_of_fade_in = GETTERS.get_end_of_fade_in(h5)
+    segment_pitches = GETTERS.get_segments_pitches(h5)
 
     if artist_name.isascii() and release.isascii():
         desired_features['Artist Name'].append(artist_name.decode('UTF-8'))
@@ -114,6 +127,33 @@ def func_to_get_desired_features(filename):
         desired_features['Time Signature'].append(time_signature)
         desired_features['Time Signature Confidence'].append(time_signature_confidence)
         desired_features['End of Fade In'].append(end_of_fade_in)
+
+        # Calculate the intervals and count them using segment pitches
+        intervals_arr = np.zeros(12) # Create intervals array
+        index_locations = []
+
+        for i in range(np.shape(segment_pitches)[0]):
+            index_locations.append(np.where(segment_pitches[i] == 1.0)[0][0])
+        index_locations = np.asarray(index_locations)
+
+        for i in range(np.size(index_locations)):
+            if (i == np.size(index_locations) - 1):
+                break
+            intervals_arr[np.abs(index_locations[i+1] - index_locations[i])] += 1
+
+        # Populate Interval Count columns
+        desired_features['Interval 1 Count'].append(intervals_arr[0])
+        desired_features['Interval 2 Count'].append(intervals_arr[1])
+        desired_features['Interval 3 Count'].append(intervals_arr[2])
+        desired_features['Interval 4 Count'].append(intervals_arr[3])
+        desired_features['Interval 5 Count'].append(intervals_arr[4])
+        desired_features['Interval 6 Count'].append(intervals_arr[5])
+        desired_features['Interval 7 Count'].append(intervals_arr[6])
+        desired_features['Interval 8 Count'].append(intervals_arr[7])
+        desired_features['Interval 9 Count'].append(intervals_arr[8])
+        desired_features['Interval 10 Count'].append(intervals_arr[9])
+        desired_features['Interval 11 Count'].append(intervals_arr[10])
+        desired_features['Interval 12 Count'].append(intervals_arr[11])
 
     h5.close()
 
