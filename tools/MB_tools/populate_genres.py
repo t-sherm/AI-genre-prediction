@@ -150,7 +150,7 @@ if __name__ == '__main__':
     set_mb_useragent()
 
     dataset = pull_song_info("../../data_processed/MSD_Desired_Features.csv")
-    data_subset = dataset[0:3]
+    data_subset = dataset
 
     data_labels = populate_genres(data_subset)
 
