@@ -154,12 +154,14 @@ if __name__ == '__main__':
 
     data_labels = populate_genres(data_subset)
 
+    # Add genre labels and remove index column
     data_subset.insert(1, "MB Genre", data_labels)
-    data_subset.drop(columns=["Unnamed: 0"])
-    print(data_subset)
+    dataset_clean = data_subset.drop(columns=["Unnamed: 0"])
+    #print(dataset_clean)
+
     # Export pandas dataframe to csv file
     print('Exporting to csv file...')
-    data_subset.to_csv('../../data_processed/Labeled_Data.csv')
+    dataset_clean.to_csv('../../data_processed/Labeled_Data.csv')
 
 
 
