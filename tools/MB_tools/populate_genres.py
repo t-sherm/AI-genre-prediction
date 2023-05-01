@@ -121,7 +121,7 @@ def populate_genres(song_info):
     mb_genre_list = load_mb_genres()
     print(song_info)
     genres = []
-
+    genres = pd.DataFrame(columns = ['MB Genre'])
     artist_names = song_info["Artist Name"]
     release_names = song_info["Release"]
     print(artist_names.loc[1])
@@ -135,9 +135,16 @@ def populate_genres(song_info):
             print("Error finding genre for song id: ", i)
             genre = 0
 
-        genres.append(genre)
-        # End loop
+        #genres.append(genre)
+        genres.loc[i] = genre
 
+        # Store temporary genre labels in case of crash
+        if c == 500:
+            print(genres)
+            genres.to_csv('../../data_processed/Labeled_Data_Temp.csv')
+            c = 0
+
+        c = c+1
 
     #song_info.insert(0, "MB Genre", genres)
     #print(song_info)
@@ -150,10 +157,10 @@ if __name__ == '__main__':
     set_mb_useragent()
 
     dataset = pull_song_info("../../data_processed/MSD_Desired_Features.csv")
-    data_subset = dataset
+    data_subset = dataset[0:10]
 
     data_labels = populate_genres(data_subset)
-
+    #print(data_labels)
     # Add genre labels and remove index column
     data_subset.insert(1, "MB Genre", data_labels)
     dataset_clean = data_subset.drop(columns=["Unnamed: 0"])
@@ -161,7 +168,7 @@ if __name__ == '__main__':
 
     # Export pandas dataframe to csv file
     print('Exporting to csv file...')
-    dataset_clean.to_csv('../../data_processed/Labeled_Data.csv')
+    dataset_clean.to_csv('../../data_processed/Labeled_Data_Final.csv')
 
 
 
