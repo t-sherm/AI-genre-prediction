@@ -22,7 +22,7 @@ import pandas as pd
 
 
 # path to the Million Song Dataset data (uncompressed)
-msd_subset_data_path='data/MillionSongSubset'
+msd_subset_data_path='data/MillionSongData'
 assert os.path.isdir(msd_subset_data_path),'wrong path' # sanity check
 # path to the Million Song Dataset code
 msd_code_path='tools/MSD_python_code'

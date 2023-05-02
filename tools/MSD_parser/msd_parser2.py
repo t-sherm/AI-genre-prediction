@@ -22,7 +22,7 @@ import pandas as pd
 
 
 # path to the Million Song Dataset data (uncompressed)
-msd_subset_data_path='data/MillionSongSubset'
+msd_subset_data_path='data/MillionSongData'
 assert os.path.isdir(msd_subset_data_path),'wrong path' # sanity check
 # path to the Million Song Dataset code
 msd_code_path='tools/MSD_python_code'
@@ -103,7 +103,6 @@ def func_to_get_desired_features(filename):
     #     except UnboundLocalError:
     #         print(artist_name.decode('UTF-8'), "with song", title.decode('UTF-8'), "not in Labeled_Data.csv")
     #         return
-
     if artist_name.isascii() and release.isascii():
         desired_columns['Artist Name'].append(artist_name.decode('UTF-8'))
         desired_columns['Release Name'].append(release.decode('UTF-8'))
