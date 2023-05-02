@@ -40,7 +40,9 @@ import hdf5_getters as GETTERS
 
 
 # Need to dictionary to house all of the desired features globally
-desired_columns = {'Genre': []}
+desired_columns = {'Artist Name': [],
+                   'Release Name': [],
+                   'Song Title': []}
 for i in range(1, 13):
     desired_columns['Segment Pitch ' + str(i) + ' Average'] = []
     desired_columns['Segment Timbre ' + str(i) + ' Average'] = []
@@ -82,24 +84,30 @@ def func_to_get_desired_features(filename):
     h5 = GETTERS.open_h5_file_read(filename)
 
     artist_name = GETTERS.get_artist_name(h5)
+    release = GETTERS.get_release(h5)
     title = GETTERS.get_title(h5)
     segment_pitches = GETTERS.get_segments_pitches(h5)
     segment_timbre = GETTERS.get_segments_timbre(h5)
 
-    if artist_name.decode('UTF-8') in np.array(labeled_data['Artist Name']) and title.decode('UTF-8') in np.array(labeled_data['Song Title']):
-        index_artist = [x for x in range(np.size(labeled_data['Artist Name'])) if labeled_data['Artist Name'][x] == artist_name.decode('UTF-8')]
-        index_title = [x for x in range(np.size(labeled_data['Song Title'])) if labeled_data['Song Title'][x] == title.decode('UTF-8')]
+    # if artist_name.decode('UTF-8') in np.array(labeled_data['Artist Name']) and title.decode('UTF-8') in np.array(labeled_data['Song Title']):
+    #     index_artist = [x for x in range(np.size(labeled_data['Artist Name'])) if labeled_data['Artist Name'][x] == artist_name.decode('UTF-8')]
+    #     index_title = [x for x in range(np.size(labeled_data['Song Title'])) if labeled_data['Song Title'][x] == title.decode('UTF-8')]
 
-        for i in index_title:
-            if i in index_artist:
-                index = i
-                break
+    #     for i in index_title:
+    #         if i in index_artist:
+    #             index = i
+    #             break
         
-        try:
-            desired_columns['Genre'].append(labeled_data['MB Genre'].values[index])
-        except UnboundLocalError:
-            print(artist_name.decode('UTF-8'), "with song", title.decode('UTF-8'), "not in Labeled_Data.csv")
-            return
+    #     try:
+    #         desired_columns['Genre'].append(labeled_data['MB Genre'].values[index])
+    #     except UnboundLocalError:
+    #         print(artist_name.decode('UTF-8'), "with song", title.decode('UTF-8'), "not in Labeled_Data.csv")
+    #         return
+
+    if artist_name.isascii() and release.isascii():
+        desired_columns['Artist Name'].append(artist_name.decode('UTF-8'))
+        desired_columns['Release Name'].append(release.decode('UTF-8'))
+        desired_columns['Song Title'].append(title.decode('UTF-8'))
 
         # Calculate the average of each segment pitch and segment timbre
         segment_pitches_avg_arr = np.mean(segment_pitches, axis=0)
@@ -134,6 +142,6 @@ if __name__ == '__main__':
     
     # Export pandas dataframe to csv file
     print('Exporting to csv file...')
-    msd_dataframe.to_csv('data_processed/MSD_Desired_Features_With_Labels.csv')
+    msd_dataframe.to_csv('data_processed/MSD_Desired_Features.csv')
 
     
