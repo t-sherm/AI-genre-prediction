@@ -35,65 +35,53 @@ for column_name in train_set.columns:
 X_train = np.array(X_train).T
 X_test = np.array(X_test).T
 
-# # Random Forest (Without Optimized hyperparameters -- Initial Guess)
-# rnd_clf = RandomForestClassifier(n_estimators=100, max_leaf_nodes=10, n_jobs=-1, criterion='entropy', random_state=42)
-# rnd_clf.fit(X_train, y_train)
-# y_pred = rnd_clf.predict(X_test)
+# 1) Random Forest (Without Optimized hyperparameters -- Initial Guess)
+rnd_clf = RandomForestClassifier(n_estimators=100, max_leaf_nodes=10, n_jobs=-1, criterion='gini', random_state=42)
+rnd_clf.fit(X_train, y_train)
+y_pred = rnd_clf.predict(X_test)
 
-# # Accuracy score (Without optimized hyperparameters -- Initial Guess)
-# print("Random Forest Classifier (Without Optimized Hyperparameters):", accuracy_score(y_test, y_pred))
+# Accuracy score (Without optimized hyperparameters -- Initial Guess)
+print("Random Forest Classifier (Without Optimized Hyperparameters):", accuracy_score(y_test, y_pred))
 
 
-# Use GridSearchCV to try and find optimum hyperparameters for random trees classifier
-# Define the parameter grid to search
-param_grid = {
-    'n_estimators': [50, 100, 200, 500],
-    'max_features': [20, 30, 50],
-    'max_depth': [10, 20, 30, None],
-    'min_samples_split': [100, 500, 1000],
-    'min_samples_leaf': [100, 200, 500],
-    'max_leaf_nodes': [10, 15, 20],
-}
-tree_clf = RandomForestClassifier()
+# # Use GridSearchCV to try and find optimum hyperparameters for random trees classifier
+# # Define the parameter grid to search
+# param_grid = {
+#     'n_estimators': [50, 100, 200, 500],
+#     'max_features': [20, 30, 50],
+#     'max_depth': [10, 20, 30, None],
+#     'min_samples_split': [100, 500, 1000],
+#     'min_samples_leaf': [100, 200, 500],
+# }
+# tree_clf = RandomForestClassifier()
 
-# Using negative mean squared error score for classification
-grid_search = GridSearchCV(tree_clf, param_grid, cv=5, scoring='neg_mean_squared_error', n_jobs=-1)
-grid_search.fit(X_train, y_train)
+# # Using negative mean squared error score for classification
+# grid_search = GridSearchCV(tree_clf, param_grid, cv=5, scoring='neg_mean_squared_error', n_jobs=-1)
+# grid_search.fit(X_train, y_train)
 
-# Print the best combination of hyperparameters
-print("Best hyperparameters for Random Forest:", grid_search.best_params_)
+# # Print the best combination of hyperparameters
+# print("Best hyperparameters for Random Forest:", grid_search.best_params_)
 
-# # New random forest classifier (with optimized hyperparameters -- using results from GridSearchCV)
-# rnd_clf_optimized = RandomForestClassifier(n_estimators=200, min_samples_leaf=100, min_samples_split=100, max_features=50, max_depth=20, criterion='entropy', random_state=42)
-# rnd_clf_optimized.fit(X_train, y_train)
-# y_pred = rnd_clf_optimized.predict(X_test)
+# 2) New random forest classifier (with optimized hyperparameters -- using results from GridSearchCV)
+rnd_clf_optimized = RandomForestClassifier(n_estimators=200, min_samples_leaf=100, min_samples_split=100, max_features=50, max_depth=20, criterion='gini', random_state=42)
+rnd_clf_optimized.fit(X_train, y_train)
+y_pred = rnd_clf_optimized.predict(X_test)
 
-# # Accuracy score (With optimized hyperparameters)
-# print("Random Forest Classifier (Optimized Hyperparameters):", accuracy_score(y_test, y_pred))
+# Accuracy score (With optimized hyperparameters)
+print("Random Forest Classifier (Optimized Hyperparameters):", accuracy_score(y_test, y_pred))
 
-# # Now, let's try performing bagging on the random forest classifier (with the optimized hyperparameters)
-# rnd_clf_bagging = BaggingClassifier(base_estimator=RandomForestClassifier(n_estimators=200, min_samples_leaf=100, min_samples_split=100, max_features=50, max_depth=20, criterion='entropy', random_state=42), n_estimators=10, random_state=42)
-# rnd_clf_bagging.fit(X_train, y_train)
-# y_pred = rnd_clf_bagging.predict(X_test)
+# 3) Now, let's try performing bagging on the random forest classifier (with the optimized hyperparameters)
+rnd_clf_bagging = BaggingClassifier(base_estimator=RandomForestClassifier(n_estimators=200, min_samples_leaf=100, min_samples_split=100, max_features=50, max_depth=20, criterion='gini', random_state=42), n_estimators=10, random_state=42)
+rnd_clf_bagging.fit(X_train, y_train)
+y_pred = rnd_clf_bagging.predict(X_test)
 
-# # Accuracy score (With optimized hyperparameters and bagging)
-# print("Random Forest Classifier (Optimized Hyperparameters and Bagging):", accuracy_score(y_test, y_pred))
+# Accuracy score (With optimized hyperparameters and bagging)
+print("Random Forest Classifier (Optimized Hyperparameters and Bagging):", accuracy_score(y_test, y_pred))
 
-# Use GridSearchCV to try and find optimum hyperparameters for random trees classifier
-# Define the parameter grid to search
-param_grid = {
-    'n_estimators': [50, 100, 200],
-    'max_features': [20, 30, 50],
-    'max_depth': [10, 20, 30, None],
-    'min_samples_split': [100, 500, 1000],
-    'min_samples_leaf': [100, 200, 500],
-    'max_leaf_nodes': [10, 15, 20],
-}
-extra_trees_clf = ExtraTreesClassifier()
+# 4) Extra Trees Classifier using same hyperparameters as random forest optimized
+rnd_clf_extra_trees = ExtraTreesClassifier(n_estimators=200, min_samples_leaf=100, min_samples_split=100, max_features=50, max_depth=20, criterion='gini', random_state=42)
+rnd_clf_extra_trees.fit(X_train, y_train)
+y_pred = rnd_clf_extra_trees.predict(X_test)
 
-# Using negative mean squared error score for classification
-grid_search = GridSearchCV(extra_trees_clf, param_grid, cv=5, scoring='neg_mean_squared_error', n_jobs=-1)
-grid_search.fit(X_train, y_train)
-
-# Print the best combination of hyperparameters
-print("Best hyperparameters for Extra Trees:", grid_search.best_params_)
+# Accuracy score (Extra trees classifier)
+print("Extra Trees Classifier (Optimized Hyperparameters):", accuracy_score(y_test, y_pred))
