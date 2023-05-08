@@ -41,7 +41,7 @@ rnd_clf.fit(X_train, y_train)
 y_pred = rnd_clf.predict(X_test)
 
 # Accuracy score (Without optimized hyperparameters -- Initial Guess)
-print("Random Forest Classifier (Without Optimized Hyperparameters):", accuracy_score(y_test, y_pred))
+print("Random Forest Classifier (Without Optimized Hyperparameters):", accuracy_score(y_test, y_pred)) # 0.23755218409530598
 
 
 # # Use GridSearchCV to try and find optimum hyperparameters for random trees classifier
@@ -68,7 +68,7 @@ rnd_clf_optimized.fit(X_train, y_train)
 y_pred = rnd_clf_optimized.predict(X_test)
 
 # Accuracy score (With optimized hyperparameters)
-print("Random Forest Classifier (Optimized Hyperparameters):", accuracy_score(y_test, y_pred))
+print("Random Forest Classifier (Optimized Hyperparameters):", accuracy_score(y_test, y_pred)) # 0.30872619896140924
 
 # 3) Now, let's try performing bagging on the random forest classifier (with the optimized hyperparameters)
 rnd_clf_bagging = BaggingClassifier(base_estimator=RandomForestClassifier(n_estimators=200, min_samples_leaf=100, min_samples_split=100, max_features=50, max_depth=20, criterion='gini', random_state=42), n_estimators=10, random_state=42)
@@ -76,7 +76,7 @@ rnd_clf_bagging.fit(X_train, y_train)
 y_pred = rnd_clf_bagging.predict(X_test)
 
 # Accuracy score (With optimized hyperparameters and bagging)
-print("Random Forest Classifier (Optimized Hyperparameters and Bagging):", accuracy_score(y_test, y_pred))
+print("Random Forest Classifier (Optimized Hyperparameters and Bagging):", accuracy_score(y_test, y_pred)) # 0.3033295998370838
 
 # 4) Extra Trees Classifier using same hyperparameters as random forest optimized
 rnd_clf_extra_trees = ExtraTreesClassifier(n_estimators=200, min_samples_leaf=100, min_samples_split=100, max_features=50, max_depth=20, criterion='gini', random_state=42)
@@ -84,4 +84,4 @@ rnd_clf_extra_trees.fit(X_train, y_train)
 y_pred = rnd_clf_extra_trees.predict(X_test)
 
 # Accuracy score (Extra trees classifier)
-print("Extra Trees Classifier (Optimized Hyperparameters):", accuracy_score(y_test, y_pred))
+print("Extra Trees Classifier (Optimized Hyperparameters):", accuracy_score(y_test, y_pred)) # 0.2901944812137257 
